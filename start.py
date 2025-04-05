@@ -14,6 +14,11 @@ ES_folders_y = [259, 416, 573, 730, 887, 1044]
 
 build_point = [(559, 533),(471, 771),(860, 913),(1295, 930),(1619, 778),(1594, 508)]
 build_area = [(429, 472, 694, 556), (341, 710, 606, 794), (730, 852, 995, 936), (1165, 869, 1430, 953), (1489, 717, 1754, 801), (1464, 447, 1729, 531)]
+p = [(773, 315, 830, 373),(773, 565, 830, 623),(773, 815, 830, 873),
+     (1091, 315, 1148, 373),(1091, 565, 1148, 623),(1091, 815, 1148, 873),
+     (1409, 315, 1466, 373),(1409, 565, 1466, 623),(1409, 815, 1466, 873),
+     (1727, 315, 1784, 373),(1727, 565, 1784, 623),(1727, 815, 1784, 873)]
+
 car_point = [(288, 811),(427, 811),(566, 811)]
 
 def connect(adb_path, emulator_address):
@@ -184,7 +189,8 @@ if __name__ == "__main__":
     car_input = lines[8].strip()
     car = [char for char in car_input.strip('[]').split(',')]
     print(f"car: {car}")
-    mode = lines[9].strip()
+    mode_input = lines[9].strip()
+    mode = [string for string in mode_input.strip('[]').split(',')]
     print(f"mode: {mode}")
     build = [0,0,0,0,0,0]
 
@@ -266,7 +272,7 @@ if __name__ == "__main__":
             if modeexecute == 0:
                 screenshot(adb_path, emulator_address)
                 modeexecute = 1
-                if mode == "auto":
+                if mode[0] == "auto":
                     for index, c in enumerate(build_area):
                         if pixelsstatic(c, ((175, 191, 209), (178, 195, 213))) > 200 or pixelsstatic(c, ((236, 173, 33), (239, 176, 36))) > 200:
                             car[index] = 'b'
@@ -307,6 +313,11 @@ if __name__ == "__main__":
                             tap(adb_path, emulator_address, 1210, 447)  # ATTACK
                             time.sleep(1)
                             screenshot(adb_path, emulator_address)
+                        if mode[1] == "e":
+                            for j in p:
+                                if pixelsstatic(j, ((20, 77, 121),(20, 77, 121))) > 500:
+                                    tap(adb_path, emulator_address, j[2], j[3])
+                                    time.sleep(1)
                         tap(adb_path, emulator_address, 344, 987)  # ATTACK
 
                         while True:
