@@ -69,6 +69,85 @@ def get_color(x, y):
 
     return result
  
+def get_car(adb_path, emulator_address):
+    car_statue = [0, 0, 0]  # 1 = defend, 2 = fix, 3 = ready
+    car_statue_check = [0, 0, 0]
+    while True:
+        screenshot(adb_path, emulator_address)
+        if get_color(29, 607) == (85, 116, 206):
+            tap(adb_path, emulator_address, 29, 607)
+            time.sleep(3)
+            screenshot(adb_path, emulator_address)
+            if get_color(458, 607) == (85, 116, 206):
+                time.sleep(1)
+                break
+        if get_color(1126, 128) != (145, 167, 192):
+            while get_color(1775, 662) not in ((53, 79, 127), (52, 78, 126)):
+                time.sleep(1)
+                press_back(adb_path, emulator_address)
+                time.sleep(1)
+                screenshot(adb_path, emulator_address)
+            tap(adb_path, emulator_address, 1720, 61)  # CITY KINGS
+            time.sleep(2)
+    while True:
+        screenshot(adb_path, emulator_address)
+        if get_color(131, 793) == (255, 255, 255):
+            i = 0
+        elif get_color(248, 793) == (255, 255, 255):
+            i = 1
+        elif get_color(365, 793) == (255, 255, 255):
+            i = 2
+        else:
+            return 0
+        car_statue_check[i] = 1
+        if get_color(332, 428) == (113, 213, 44):
+            car_statue[i] = 1
+        elif get_color(341, 438) == (210, 35, 37):
+            car_statue[i] = 2
+        else:
+            car_statue[i] = 3
+        car_cor = get_car_color(adb_path, emulator_address)
+        if car_statue_check[0] == 0:
+            nextx = 131
+        elif car_statue_check[1] == 0:
+            nextx = 248
+        elif car_statue_check[2] == 0:
+            nextx = 365
+        else:
+            while True:
+                screenshot(adb_path, emulator_address)
+                if get_color(458, 607) == (85, 116, 206):
+                    tap(adb_path, emulator_address, 458, 607)
+                    time.sleep(3)
+                    screenshot(adb_path, emulator_address)
+                    if get_color(29, 607) == (85, 116, 206):
+                        time.sleep(1)
+                        break
+                if get_color(1126, 128) != (145, 167, 192):
+                    while get_color(1775, 662) not in ((53, 79, 127), (52, 78, 126)):
+                        time.sleep(1)
+                        press_back(adb_path, emulator_address)
+                        time.sleep(1)
+                        screenshot(adb_path, emulator_address)
+                    tap(adb_path, emulator_address, 1720, 61)  # CITY KINGS
+                    time.sleep(2)
+            return car_statue
+        while True:
+            tap(adb_path, emulator_address, nextx, 793)
+            time.sleep(3)
+            car_ncor = get_car_color(adb_path, emulator_address)
+            if car_ncor != car_cor:
+                break
+
+            
+        
+def get_car_color(adb_path, emulator_address):
+    screenshot(adb_path, emulator_address)
+    car_color = []
+    car_color.extend(get_color(230, 530))
+    car_color.extend(get_color(190, 595))
+    car_color.extend(get_color(285, 595))
+    return car_color
 
 if __name__ == "__main__":
 
@@ -148,41 +227,53 @@ if __name__ == "__main__":
                 screenshot(adb_path, emulator_address)
 
         if status == 2:
-            close_app(adb_path, emulator_address, package_name="com.zeptolab.cats.google")
-            time.sleep(1)
-            continue
+            car_statue = get_car(adb_path, emulator_address)
+            if car_statue == 0:
+                car_statue = get_car(adb_path, emulator_address)
+            if 3 not in car_statue:
+                close_app(adb_path, emulator_address, package_name="com.zeptolab.cats.google")
+                time.sleep(1)
+                continue
+            else:
+                status = 4
 
-        if status == 1:
-            tap(adb_path, emulator_address, 1763, 990)  # ENLIST
-            time.sleep(2)
-            tap(adb_path, emulator_address, 1692, 873)  # START
-            time.sleep(2)
-            tap(adb_path, emulator_address, 1069, 916)  # LET'S FIGHT
-            time.sleep(2)
+        if status in [1, 4]:
+            if status == 1:
+                car_statue = [3, 3, 3]
+                tap(adb_path, emulator_address, 1763, 990)  # ENLIST
+                time.sleep(2)
+                tap(adb_path, emulator_address, 1692, 873)  # START
+                time.sleep(2)
+                tap(adb_path, emulator_address, 1069, 916)  # LET'S FIGHT
+                time.sleep(2)
             order = [char for char in order_list[item]] # 获取车辆属性指令
-            screenshot(adb_path, emulator_address)
-            a = 0
-            while a == 0:
-                for i in range(0, 6):
-                    if get_color(build_point[i][0],build_point[i][1]) == (94, 106, 131):
-                        build[i] = 0
-                    elif get_color(build_point[i][0],build_point[i][1]) == (255, 101, 100):
-                        build[i] = 2
-                    elif get_color(build_point[i][0],build_point[i][1]) == (144, 179, 235):
-                        build[i] = 1
-                    else:
-                        time.sleep(1)
-                        screenshot(adb_path, emulator_address)
-                        break
-                    if i == 5:
-                        a = 1
-                        break
             for index, c in enumerate(order):
+                if car_statue[index] != 3:
+                    continue
                 end = 0
+                a = 0
+                screenshot(adb_path, emulator_address)
+                while a == 0:
+                    for i in range(0, 6):
+                        if get_color(build_point[i][0],build_point[i][1]) == (94, 106, 131):
+                            build[i] = 0
+                        elif get_color(build_point[i][0],build_point[i][1]) == (255, 101, 100):
+                            build[i] = 2
+                        elif get_color(build_point[i][0],build_point[i][1]) == (144, 179, 235):
+                            build[i] = 1
+                        else:
+                            time.sleep(1)
+                            screenshot(adb_path, emulator_address)
+                            break
+                        if i == 5:
+                            if all(build[i] == 1 for i in range(len(car)) if car[i] == 'b') == True:
+                                car = ['b' if x == 's' else x for x in car]
+                            a = 1
+                            break
                 for i in range(0, 6):
-                    if build[i] == 1:
+                    if build[i] == 1 and car[i] != 'o':
                         continue
-                    if car[i] == c:
+                    if car[i] == c or car[i] == 'o':
                         tap(adb_path, emulator_address, build_point[i][0], build_point[i][1])
                         time.sleep(1.5)
                         screenshot(adb_path, emulator_address)
@@ -192,32 +283,36 @@ if __name__ == "__main__":
                             time.sleep(1)
                             screenshot(adb_path, emulator_address)
                         tap(adb_path, emulator_address, 344, 987)  # ATTACK
-                        time.sleep(1)
-                        
-                        screenshot(adb_path, emulator_address)
-                        while get_color(149, 657) == (115, 69, 55):
-                            time.sleep(1)
-                            tap(adb_path, emulator_address, car_point[index][0], car_point[index][1])
-                            time.sleep(1)
-                            tap(adb_path, emulator_address, 960, 540)  # ATTACK
-                            time.sleep(10)
-                            while True:
-                                screenshot(adb_path, emulator_address)
-                                if get_color(1217, 225) in ((193, 40, 41), (120, 44, 20)):
-                                    tap(adb_path, emulator_address, 1020, 900)
-                                    end = 1
-                                    break
-                        if end == 1:
-                            while True:
-                                screenshot(adb_path, emulator_address)
-                                if get_color(1126, 128) == (145, 167, 192):
-                                    end = 2
-                                    break
-                                else:
-                                    press_back(adb_path, emulator_address)
-                                    time.sleep(1)      
 
-                        if end == 2:   
+                        while True:
+                            time.sleep(1)
+                            screenshot(adb_path, emulator_address)
+                            if get_color(149, 657) == (115, 69, 55):
+                                time.sleep(1)
+                                tap(adb_path, emulator_address, car_point[index][0], car_point[index][1])
+                                time.sleep(1)
+                                tap(adb_path, emulator_address, 960, 540)  # ATTACK
+                                time.sleep(10)
+                                while True:
+                                    screenshot(adb_path, emulator_address)
+                                    if get_color(1217, 225) in ((193, 40, 41), (120, 44, 20)):
+                                        tap(adb_path, emulator_address, 1020, 900)
+                                        end = 1
+                                        break
+                            if end == 1:
+                                while True:
+                                    screenshot(adb_path, emulator_address)
+                                    if get_color(1126, 128) == (145, 167, 192):
+                                        end = 2
+                                        break
+                                    else:
+                                        press_back(adb_path, emulator_address)
+                                        time.sleep(1)      
+
+                            if end == 2:   
+                                break
+
+                        if end == 2:
                             break
 
         close_app(adb_path, emulator_address, package_name="com.zeptolab.cats.google")
