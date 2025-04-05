@@ -1,6 +1,7 @@
 import subprocess
 
 from PIL import Image
+import numpy as np
 import time
 import re
 
@@ -12,6 +13,7 @@ ES_folders_x = [687, 911, 1135, 1359, 1583, 1807]
 ES_folders_y = [259, 416, 573, 730, 887, 1044]
 
 build_point = [(559, 533),(471, 771),(860, 913),(1295, 930),(1619, 778),(1594, 508)]
+build_area = [(429, 472, 694, 556), (341, 710, 606, 794), (730, 852, 995, 936), (1165, 869, 1430, 953), (1489, 717, 1754, 801), (1464, 447, 1729, 531)]
 car_point = [(288, 811),(427, 811),(566, 811)]
 
 def connect(adb_path, emulator_address):
@@ -68,6 +70,19 @@ def get_color(x, y):
     result = pixel_color[:3]
 
     return result
+
+def pixelsstatic(area, color):
+    image = Image.open("screenshot.png")
+    cropped_image = image.crop(area)
+    image_np = np.array(cropped_image)
+    count = 0
+    for i in range(image_np.shape[0]):
+        for j in range(image_np.shape[1]):
+            pixel = image_np[i, j]
+            if all(color[0][k] <= pixel[k] <= color[1][k] for k in range(3)):
+                    count += 1
+    return count
+
  
 def get_car(adb_path, emulator_address):
     car_statue = [0, 0, 0]  # 1 = defend, 2 = fix, 3 = ready
@@ -138,8 +153,6 @@ def get_car(adb_path, emulator_address):
             car_ncor = get_car_color(adb_path, emulator_address)
             if car_ncor != car_cor:
                 break
-
-            
         
 def get_car_color(adb_path, emulator_address):
     screenshot(adb_path, emulator_address)
@@ -171,6 +184,8 @@ if __name__ == "__main__":
     car_input = lines[8].strip()
     car = [char for char in car_input.strip('[]').split(',')]
     print(f"car: {car}")
+    mode = lines[9].strip()
+    print(f"mode: {mode}")
     build = [0,0,0,0,0,0]
 
 
@@ -184,6 +199,7 @@ if __name__ == "__main__":
     time.sleep(0.5)
     tapes(adb_path, emulator_address, 1, 2)  # 选择你的主文件夹，第一排第二个
     tapes(adb_path, emulator_address, folder[0], folder[1])  # 选择你的次文件夹
+    modeexecute = 0
     for item in range(0, 25):
         if order_list[item] == 'jmp':
             continue
@@ -247,6 +263,15 @@ if __name__ == "__main__":
                 tap(adb_path, emulator_address, 1069, 916)  # LET'S FIGHT
                 time.sleep(2)
             order = [char for char in order_list[item]] # 获取车辆属性指令
+            if modeexecute == 0:
+                screenshot(adb_path, emulator_address)
+                modeexecute = 1
+                if mode == "auto":
+                    for index, c in enumerate(build_area):
+                        if pixelsstatic(c, ((175, 191, 209), (178, 195, 213))) > 200 or pixelsstatic(c, ((236, 173, 33), (239, 176, 36))) > 200:
+                            car[index] = 'b'
+                        else:
+                            car[index] = 's'
             for index, c in enumerate(order):
                 if car_statue[index] != 3:
                     continue
@@ -287,7 +312,7 @@ if __name__ == "__main__":
                         while True:
                             time.sleep(1)
                             screenshot(adb_path, emulator_address)
-                            if get_color(149, 657) == (115, 69, 55):
+                            if get_color(149, 657) in ((115, 69, 55), (115, 70, 56)):
                                 time.sleep(1)
                                 tap(adb_path, emulator_address, car_point[index][0], car_point[index][1])
                                 time.sleep(1)

@@ -1,9 +1,10 @@
 D:/leidian/LDPlayer9/adb.exe
 127.0.0.1:5555
-[1,1]
-[nnn,nnn,nnn,nnn,nnn,nnn]
-[nnn,nnn,nnn,nnn,nnn,nnn]
-[nnn,nnn,nnn,nnn,nnn,nnn]
-[nnn,nnn,nnn,nnn,nnn,nnn]
-[nnn]
-[b,b,s,s,n,n]
+[1,2]
+[bbb,bbb,bbb,bbb,bbb,bbb]
+[bbb,bbb,bbb,bbb,bbb,bbb]
+[bbb,bbb,bbb,bbb,bbb,bbb]
+[jmp,jmp,jmp,jmp,jmp,jmp]
+[jmp]
+[b,b,b,b,b,b]
+auto
