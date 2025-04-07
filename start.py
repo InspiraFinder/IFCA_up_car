@@ -5,6 +5,11 @@ import numpy as np
 import time
 import re
 
+import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTextEdit, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtCore import QThread, pyqtSignal
+from io import StringIO
+import contextlib
 #adb_path = f"D:/leidian/LDPlayer9/adb.exe"
 #emulator_address = '127.0.0.1:5555'
 
@@ -171,9 +176,8 @@ def get_car_color(adb_path, emulator_address):
     car_color.extend(get_color(285, 595))
     return car_color
 
-if __name__ == "__main__":
-
-    # 读取配置文件
+def main():
+# 读取配置文件
     with open('config.txt', 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
@@ -195,6 +199,7 @@ if __name__ == "__main__":
     print(f"car: {car}")
     mode_input = lines[9].strip()
     mode = [string for string in mode_input.strip('[]').split(',')]
+    time.sleep(1)
     print(f"mode: {mode}")
     build = [0,0,0,0,0,0]
     new_build = [0,0,0,0,0,0]
@@ -215,6 +220,7 @@ if __name__ == "__main__":
         print(f"Processing item {item + 1}")
         if order_list[item] == 'jmp':
             print(f"Item {item + 1} will be jumped")
+            time.sleep(1)
             continue
         open_app(adb_path, emulator_address, package_name="com.estrongs.android.pop", activity_name=".app.openscreenad.NewSplashActivity")
         y = item % 6 + 1
@@ -464,6 +470,88 @@ if __name__ == "__main__":
         time.sleep(1)
         print(f"Item {item + 1} processed")
 
+class RedirectedIO(StringIO):
+    def __init__(self, signal):
+        super().__init__()
+        self.signal = signal
+        self.last_emit_time = time.time()  
+
+    def write(self, message):
+        super().write(message)
+        current_time = time.time()
+        if current_time - self.last_emit_time >= 1:  
+            self.flush()
+            output = self.getvalue().strip()
+            if output: 
+                self.signal.emit(output)
+                self.truncate(0)
+                self.seek(0)
+            self.last_emit_time = current_time
+
+class WorkerThread(QThread):
+    output_signal = pyqtSignal(str)
+
+    @contextlib.contextmanager
+    def redirect_stdout(self, new_stdout):
+        old_stdout = sys.stdout
+        sys.stdout = new_stdout
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
+
+    def run(self):
+        with self.redirect_stdout(RedirectedIO(self.output_signal)):
+            main()
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("IFCA-UP-UP-CAR-🚗")
+
+        self.resize(320, 240)
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+
+        self.layout = QVBoxLayout(self.central_widget)
+
+        self.output_box = QTextEdit(self)
+        self.output_box.setReadOnly(True)
+        self.layout.addWidget(self.output_box)
+
+        self.start_button = QPushButton("START", self)
+        self.start_button.clicked.connect(self.on_start_clicked)
+        self.layout.addWidget(self.start_button)
+
+        self.worker_thread = None
+
+    def on_start_clicked(self):
+        if self.worker_thread is None or not self.worker_thread.isRunning():
+            self.start_button.setEnabled(False)
+            self.start_button.setText("Processing...")
+
+            self.worker_thread = WorkerThread()
+            self.worker_thread.output_signal.connect(self.update_output_box)
+            self.worker_thread.finished.connect(self.on_task_finished)
+            self.worker_thread.start()
+
+    def update_output_box(self, output):
+        self.output_box.append(output)
+
+    def on_task_finished(self):
+        self.start_button.setEnabled(True)
+        self.start_button.setText("START")
+        self.worker_thread = None
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+
+    main_window = MainWindow()
+    main_window.show()
+
+    sys.exit(app.exec())
 
 
 
