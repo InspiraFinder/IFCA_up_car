@@ -361,9 +361,9 @@ if __name__ == "__main__":
                                             else:
                                                 statuschange = 1
                                             break
-                                        if get_color(407, 957) == (210, 35, 37):
-                                            tap(adb_path, emulator_address, 407, 957)
-                                            time.sleep(1)
+                                if get_color(407, 957) == (210, 35, 37):
+                                    tap(adb_path, emulator_address, 407, 957)
+                                    time.sleep(1)
                                 if end == 1:
                                     if statuschange == 1:
                                         while True:
@@ -431,9 +431,9 @@ if __name__ == "__main__":
                                     else:
                                         statuschange = 1
                                     break
-                                if get_color(407, 957) == (210, 35, 37):
-                                    tap(adb_path, emulator_address, 407, 957)
-                                    time.sleep(1)
+                        if get_color(407, 957) == (210, 35, 37):
+                            tap(adb_path, emulator_address, 407, 957)
+                            time.sleep(1)
                         if end == 1:
                             if statuschange == 1:
                                 while True:
