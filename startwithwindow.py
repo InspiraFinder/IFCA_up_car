@@ -103,9 +103,9 @@ def get_car(adb_path, emulator_address):
             tap(adb_path, emulator_address, 29, 607)
             time.sleep(3)
             screenshot(adb_path, emulator_address)
-            if get_color(458, 607) == (85, 116, 206):
-                time.sleep(1)
-                break
+        if get_color(458, 607) == (85, 116, 206):
+            time.sleep(1)
+            break
         if get_color(1126, 128) != (145, 167, 192):
             while get_color(1775, 662) not in ((53, 79, 127), (52, 78, 126)):
                 time.sleep(1)
@@ -147,9 +147,9 @@ def get_car(adb_path, emulator_address):
                     tap(adb_path, emulator_address, 458, 607)
                     time.sleep(3)
                     screenshot(adb_path, emulator_address)
-                    if get_color(29, 607) == (85, 116, 206):
-                        time.sleep(1)
-                        break
+                if get_color(29, 607) == (85, 116, 206):
+                    time.sleep(1)
+                    break
                 if get_color(1126, 128) != (145, 167, 192):
                     while get_color(1775, 662) not in ((53, 79, 127), (52, 78, 126)):
                         time.sleep(1)
@@ -201,6 +201,7 @@ def main():
     print(f"mode: {mode}")
     build = [0,0,0,0,0,0]
     new_build = [0,0,0,0,0,0]
+    blp = [0,0,0,0,0,0]
 
 
 
@@ -265,6 +266,15 @@ def main():
                 car_statue = get_car(adb_path, emulator_address)
             if 3 not in car_statue:
                 close_app(adb_path, emulator_address, package_name="com.zeptolab.cats.google")
+                if not os.path.exists("report.txt"):
+                    with open("report.txt", "w", encoding="utf-8") as file:
+                        pass
+                with open("report.txt", "a", encoding="utf-8") as file:
+                    formatedoutput = f"Item {item + 1}: "
+                    file.write(formatedoutput)
+                    formatedoutput = f"{car_statue}\n"
+                    file.write(formatedoutput)
+                print(f"Item {item + 1} processed")
                 time.sleep(1)
                 continue
             else:
@@ -286,9 +296,9 @@ def main():
                 modeexecute = 1
                 if mode[0] == "auto":
                     for index, c in enumerate(build_area):
-                        if pixelsstatic(c, ((175, 191, 209), (178, 195, 213))) > 200 or pixelsstatic(c, ((236, 173, 33), (239, 176, 36))) > 200:
-                            car[index] = 'b'
-                        elif pixelsstatic(build_area_a[index], ((209, 0, 29), (209, 0, 29))) > 5000:
+                        if pixelsstatic(build_area_a[index], ((209, 0, 29), (209, 0, 29))) > 5000:
+                            build[index] = 6
+                        elif pixelsstatic(c, ((175, 191, 209), (178, 195, 213))) > 200 or pixelsstatic(c, ((236, 173, 33), (239, 176, 36))) > 200:
                             car[index] = 'b'
                         else:
                             car[index] = 's'
@@ -302,25 +312,41 @@ def main():
                     screenshot(adb_path, emulator_address)
                     while a == 0:
                         for i in range(0, 6):
-                            if get_color(build_point[i][0],build_point[i][1]) == (94, 106, 131):
-                                build[i] = 0
-                            elif get_color(build_point[i][0],build_point[i][1]) == (255, 101, 100):
-                                build[i] = 2
-                            elif get_color(build_point[i][0],build_point[i][1]) == (144, 179, 235):
+                            blue = pixelsstatic(build_area[i], ((144, 179, 235), (144, 179, 235)))
+                            red = pixelsstatic(build_area[i], ((255, 101, 100), (255, 101, 100)))
+                            grey = pixelsstatic(build_area[i], ((94, 106, 131), (94, 106, 131)))
+                            sum = blue + red + grey
+                            blp[i] = blue / sum
+                            if build[i] == 6 and blp[i] <= 0.5 and car[i] != 'n':
+                                build[i] = 6
+                            if blp[i] <= 0.5 and car[i] != 'n':
+                                build[i] = 5
+                            if blp[i] >= 0.5 and car[i] == 'o':
                                 build[i] = 1
                             else:
+                                build[i] = 0
+                            if sum <= 100:
                                 time.sleep(1)
                                 screenshot(adb_path, emulator_address)
                                 break
                             if i == 5:
-                                if all(build[i] == 1 for i in range(len(car)) if car[i] == 'b') == True:
+                                if 6 not in build and 5 not in build and 1 in build:
+                                    indices = [i for i, value in enumerate(build) if value == 1]
+                                    sorted_indices = sorted(indices, key=lambda i: blp[i], reverse=True)
+                                    value = 5
+                                    for index in sorted_indices:
+                                        build[index] = value
+                                        value -= 1
+                                max_value = max(build)
+                                build = [1 if x == max_value else 0 for x in build]
+                                if all(build[i] == 0 for i in range(len(car)) if car[i] == 'b') == True:
                                     car = ['b' if x == 's' else x for x in car]
                                 a = 1
                                 break
                     for i in range(0, 6):
-                        if build[i] == 1 and car[i] != 'o':
+                        if build[i] == 0:
                             continue
-                        if car[i] == c or car[i] == 'o':
+                        if (car[i] == 'o' or car[i] == c) and build[i] == 1:
                             tap(adb_path, emulator_address, build_point[i][0], build_point[i][1])
                             time.sleep(1.5)
                             screenshot(adb_path, emulator_address)
@@ -360,20 +386,16 @@ def main():
                                             tap(adb_path, emulator_address, 1020, 900)
                                             time.sleep(1)
                                             screenshot(adb_path, emulator_address)
-                                            while get_color(407, 957) not in ((210, 35, 37),(232, 145, 146)):
+                                            while get_color(407, 957) not in ((210, 35, 37), (232, 145, 146)):
                                                 tap(adb_path, emulator_address, 1020, 900)
                                                 time.sleep(1)
                                                 screenshot(adb_path, emulator_address)
                                             end = 1
-                                            if get_color(954, 188) == (94, 106, 131):
+                                            if get_color(954, 188) == (144, 179, 235):
                                                 new_build[i] = 0
-                                            elif get_color(954, 188) == (255, 101, 100):
-                                                new_build[i] = 2
-                                            elif get_color(954, 188) == (144, 179, 235):
-                                                new_build[i] = 1
                                             else:
-                                                new_build[i] = 3
-                                            if build[i] == new_build[i]:
+                                                new_build[i] = 1
+                                            if (new_build[i] == 1 and order[index] == order[index + 1]) or car[i] == 'o':
                                                 statuschange = 0
                                             else:
                                                 statuschange = 1
@@ -479,9 +501,10 @@ def main():
             with open("report.txt", "w", encoding="utf-8") as file:
                 pass
         with open("report.txt", "a", encoding="utf-8") as file:
-            formatedoutput = f"Item {item + 1}"
+            formatedoutput = f"Item {item + 1}: "
             file.write(formatedoutput)
-            file.write(str(car_statue))
+            formatedoutput = f"{car_statue}\n"
+            file.write(formatedoutput)
         print(f"Item {item + 1} processed")
         time.sleep(1)
 
