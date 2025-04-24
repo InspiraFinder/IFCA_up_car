@@ -27,12 +27,12 @@ p = [(773, 315, 830, 373),(773, 565, 830, 623),(773, 815, 830, 873),
 car_point = [(288, 811),(427, 811),(566, 811)]
 
 def connect(adb_path, emulator_address):
-    result = subprocess.run(f'{adb_path} connect {emulator_address}',shell=True,text=True,capture_output=True)
+    result = subprocess.run(f'{adb_path} connect {emulator_address}',shell=True,text=True,capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
     
 def tap(adb_path, emulator_address, x, y):
-    result = subprocess.run(f'{adb_path} -s {emulator_address} shell input tap {x} {y}', shell=True, text=True, capture_output=True)
+    result = subprocess.run(f'{adb_path} -s {emulator_address} shell input tap {x} {y}', shell=True, text=True, capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
 
@@ -41,35 +41,35 @@ def tapes(adb_path, emulator_address, x, y):
     time.sleep(0.5)
 
 def swipe(adb_path, emulator_address, start_x, start_y, end_x, end_y, duration=1000):
-    result = subprocess.run(f'{adb_path} -s {emulator_address} shell input swipe {start_x} {start_y} {end_x} {end_y} {duration}', shell=True, text=True, capture_output=True)
+    result = subprocess.run(f'{adb_path} -s {emulator_address} shell input swipe {start_x} {start_y} {end_x} {end_y} {duration}', shell=True, text=True, capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
 
 def screenshot(adb_path, emulator_address):
-    result = subprocess.run(f'{adb_path} -s {emulator_address} shell screencap -p /sdcard/screenshot.png', shell=True, text=True, capture_output=True)
+    result = subprocess.run(f'{adb_path} -s {emulator_address} shell screencap -p /sdcard/screenshot.png', shell=True, text=True, capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
-    result = subprocess.run(f'{adb_path} -s {emulator_address} pull /sdcard/screenshot.png screenshot.png', shell=True, text=True, capture_output=True)
+    result = subprocess.run(f'{adb_path} -s {emulator_address} pull /sdcard/screenshot.png screenshot.png', shell=True, text=True, capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
 
 def press_home(adb_path, emulator_address):
-    result = subprocess.run(f'{adb_path} -s {emulator_address} shell input keyevent 3', shell=True, text=True, capture_output=True)
+    result = subprocess.run(f'{adb_path} -s {emulator_address} shell input keyevent 3', shell=True, text=True, capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
 
 def press_back(adb_path, emulator_address):
-    result = subprocess.run(f'{adb_path} -s {emulator_address} shell input keyevent 4', shell=True, text=True, capture_output=True)
+    result = subprocess.run(f'{adb_path} -s {emulator_address} shell input keyevent 4', shell=True, text=True, capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
 
 def open_app(adb_path, emulator_address, package_name, activity_name):
-    result = subprocess.run(f'{adb_path} -s {emulator_address} shell am start -n {package_name}/{activity_name}', shell=True, text=True, capture_output=True)
+    result = subprocess.run(f'{adb_path} -s {emulator_address} shell am start -n {package_name}/{activity_name}', shell=True, text=True, capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
 
 def close_app(adb_path, emulator_address, package_name):
-    result = subprocess.run(f'{adb_path} -s {emulator_address} shell am force-stop {package_name}', shell=True, text=True, capture_output=True)
+    result = subprocess.run(f'{adb_path} -s {emulator_address} shell am force-stop {package_name}', shell=True, text=True, capture_output=True, encoding="utf-8")
     if result.returncode != 0:
         print("emulater error")
 
@@ -197,9 +197,10 @@ def main():
     print(f"car: {car}")
     mode_input = lines[9].strip()
     mode = [string for string in mode_input.strip('[]').split(',')]
-    time.sleep(1)
     print(f"mode: {mode}")
     build = [0,0,0,0,0,0]
+    bbuild = [0,0,0,0,0,0]
+    sbuild = [0,0,0,0,0,0]
     new_build = [0,0,0,0,0,0]
     blp = [0,0,0,0,0,0]
 
@@ -219,7 +220,6 @@ def main():
         print(f"Processing item {item + 1}")
         if order_list[item] == 'jmp':
             print(f"Item {item + 1} will be jumped")
-            time.sleep(1)
             continue
         open_app(adb_path, emulator_address, package_name="com.estrongs.android.pop", activity_name=".app.openscreenad.NewSplashActivity")
         y = item % 6 + 1
@@ -239,6 +239,8 @@ def main():
 
         status = 0
         while get_color(1775, 662) not in ((53, 79, 127), (52, 78, 126)):
+            if get_color(384, 722) == (236, 224, 210):
+                swipe(adb_path, emulator_address, 1313, 372, 13, 372)
             time.sleep(1)
             press_back(adb_path, emulator_address)
             time.sleep(1)
@@ -255,6 +257,8 @@ def main():
             if get_color(1126, 128) == (255, 255, 255):
                 break
             while get_color(1775, 662) not in ((53, 79, 127), (52, 78, 126)):
+                if get_color(384, 722) == (236, 224, 210):
+                    swipe(adb_path, emulator_address, 1313, 372, 13, 372)
                 time.sleep(1)
                 press_back(adb_path, emulator_address)
                 time.sleep(1)
@@ -264,6 +268,7 @@ def main():
             car_statue = get_car(adb_path, emulator_address)
             if car_statue == 0:
                 car_statue = get_car(adb_path, emulator_address)
+            print(f"car_statue: {car_statue}")
             if 3 not in car_statue:
                 close_app(adb_path, emulator_address, package_name="com.zeptolab.cats.google")
                 if not os.path.exists("report.txt"):
@@ -283,6 +288,7 @@ def main():
         if status in [1, 4]:
             if status == 1:
                 car_statue = [3, 3, 3]
+                print(f"car_statue: {car_statue}")
                 tap(adb_path, emulator_address, 1763, 990)  # ENLIST
                 time.sleep(2)
                 tap(adb_path, emulator_address, 1692, 873)  # START
@@ -290,7 +296,8 @@ def main():
                 tap(adb_path, emulator_address, 1069, 916)  # LET'S FIGHT
                 time.sleep(2)
             statuschange = 1
-            order = [char for char in order_list[item]] # 获取车辆属性指令
+            order = [char for char in order_list[item]]  # 获取车辆属性指令
+            order.append('u') 
             if modeexecute == 0:
                 screenshot(adb_path, emulator_address)
                 modeexecute = 1
@@ -302,7 +309,17 @@ def main():
                             car[index] = 'b'
                         else:
                             car[index] = 's'
+                elif mode[0] == "autoultra":
+                    for index, c in enumerate(build_area):
+                        if pixelsstatic(build_area_a[index], ((209, 0, 29), (209, 0, 29))) > 5000:
+                            build[index] = 6
+                        elif pixelsstatic(c, ((175, 191, 209), (178, 195, 213))) > 200 or pixelsstatic(c, ((236, 173, 33), (239, 176, 36))) > 200:
+                            car[index] = 'o'
+                        else:
+                            car[index] = 's'
             for index, c in enumerate(order):
+                if index == 3:
+                    continue
                 if car_statue[index] != 3:
                     continue
                 end = 0
@@ -317,14 +334,34 @@ def main():
                             grey = pixelsstatic(build_area[i], ((94, 106, 131), (94, 106, 131)))
                             sum = blue + red + grey
                             blp[i] = blue / sum
+                            if car[i] in ['a','b','o'] and blp[i] <= 0.5 and build[i] == 6:
+                                bbuild[i] = 3
+                            elif car[i] in ['a','b','o'] and blp[i] <= 0.5:
+                                bbuild[i] = 2
+                            elif car[i] == 'o':
+                                bbuild[i] = 1
+                            else:
+                                bbuild[i] = 0
+                            if car[i] in ['a','s'] and blp[i] <= 0.5 and build[i] == 6:
+                                sbuild[i] = 3
+                            elif car[i] in ['a','s'] and blp[i] <= 0.5:
+                                sbuild[i] = 2
+                            elif car[i] == 'o' and blp[i] >= 0.7:
+                                sbuild[i] = 1
+                            else:
+                                sbuild[i] = 0
                             if build[i] == 6 and blp[i] <= 0.5 and car[i] != 'n':
                                 build[i] = 6
-                            if blp[i] <= 0.5 and car[i] != 'n':
+                            elif blp[i] <= 0.5 and car[i] != 'n':
                                 build[i] = 5
-                            if blp[i] >= 0.5 and car[i] == 'o':
+                            elif blp[i] >= 0.5 and car[i] == 'o':
                                 build[i] = 1
                             else:
                                 build[i] = 0
+                            if blp[i] >= 0.99:
+                                build[i] = 0
+                                bbuild[i] = 0
+                                sbuild[i] = 0
                             if sum <= 100:
                                 time.sleep(1)
                                 screenshot(adb_path, emulator_address)
@@ -334,22 +371,43 @@ def main():
                                     indices = [i for i, value in enumerate(build) if value == 1]
                                     sorted_indices = sorted(indices, key=lambda i: blp[i], reverse=True)
                                     value = 5
-                                    for index in sorted_indices:
-                                        build[index] = value
+                                    for indexx in sorted_indices:
+                                        build[indexx] = value
+                                        value -= 1
+                                if 3 not in bbuild and 2 not in bbuild and 1 in bbuild:
+                                    indices = [i for i, value in enumerate(bbuild) if value == 1]
+                                    sorted_indices = sorted(indices, key=lambda i: blp[i], reverse=True)
+                                    value = 5
+                                    for indexx in sorted_indices:
+                                        bbuild[indexx] = value
+                                        value -= 1
+                                if 3 not in sbuild and 2 not in sbuild and 1 in sbuild:
+                                    indices = [i for i, value in enumerate(sbuild) if value == 1]
+                                    sorted_indices = sorted(indices, key=lambda i: blp[i], reverse=True)
+                                    value = 5
+                                    for indexx in sorted_indices:
+                                        sbuild[indexx] = value
                                         value -= 1
                                 max_value = max(build)
+                                bmax_value = max(bbuild)
+                                smax_value = max(sbuild)
                                 build = [1 if x == max_value else 0 for x in build]
-                                if all(build[i] == 0 for i in range(len(car)) if car[i] == 'b') == True:
-                                    car = ['b' if x == 's' else x for x in car]
+                                bbuild = [1 if x == bmax_value else 0 for x in bbuild]
+                                sbuild = [1 if x == smax_value else 0 for x in sbuild]
+                                if all(bbuild[i] == 0 for i in range(len(car)) if car[i] in ('b', 'o', 'a')) == True:
+                                    car = ['a' if x == 's' else x for x in car]
                                 a = 1
                                 break
                     for i in range(0, 6):
                         if build[i] == 0:
                             continue
-                        if (car[i] == 'o' or car[i] == c) and build[i] == 1:
+                        if (car[i] in ('o', 'a') or car[i] == c) and build[i] == 1:
                             tap(adb_path, emulator_address, build_point[i][0], build_point[i][1])
                             time.sleep(1.5)
                             screenshot(adb_path, emulator_address)
+                            while get_color(1188, 327) != (255, 141, 126):
+                                time.sleep(0.5)
+                                screenshot(adb_path, emulator_address)
                             while get_color(1188, 327) == (255, 141, 126):
                                 time.sleep(1)
                                 tap(adb_path, emulator_address, 1210, 447)  # ATTACK
@@ -395,7 +453,7 @@ def main():
                                                 new_build[i] = 0
                                             else:
                                                 new_build[i] = 1
-                                            if (new_build[i] == 1 and order[index] == order[index + 1]) or car[i] == 'o':
+                                            if (new_build[i] == 1 and (order[index] == order[index + 1] or (car[i] == 'a' and order[index + 1] != 'n'))) or car[i] == 'o':
                                                 statuschange = 0
                                             else:
                                                 statuschange = 1
@@ -453,23 +511,23 @@ def main():
                             while True:
                                 screenshot(adb_path, emulator_address)
                                 if get_color(1217, 225) in ((193, 40, 41), (120, 44, 20)):
+                                    if get_color(1217, 225) == (193, 40, 41):
+                                        final = 1
+                                    if get_color(1217, 225) == (120, 44, 20):
+                                        final = 2
                                     tap(adb_path, emulator_address, 1020, 900)
                                     time.sleep(1)
                                     screenshot(adb_path, emulator_address)
-                                    while get_color(407, 957) not in ((210, 35, 37),(232, 145, 146)):
+                                    while get_color(407, 957) not in ((210, 35, 37), (232, 145, 146), (255, 96, 90)):
                                         tap(adb_path, emulator_address, 1020, 900)
                                         time.sleep(1)
                                         screenshot(adb_path, emulator_address)
                                     end = 1
-                                    if get_color(954, 188) == (94, 106, 131):
+                                    if get_color(954, 188) == (144, 179, 235):
                                         new_build[i] = 0
-                                    elif get_color(954, 188) == (255, 101, 100):
-                                        new_build[i] = 2
-                                    elif get_color(954, 188) == (144, 179, 235):
-                                        new_build[i] = 1
                                     else:
-                                        new_build[i] = 3
-                                    if build[i] == new_build[i]:
+                                        new_build[i] = 1
+                                    if (new_build[i] == 1 and (order[index] == order[index + 1] or (car[i] == 'a' and order[index + 1] != 'n'))) or car[i] == 'o':
                                         statuschange = 0
                                     else:
                                         statuschange = 1
