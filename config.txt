@@ -7,7 +7,7 @@ D:/leidian/LDPlayer9/adb.exe
 [jmp,jmp,jmp,jmp,jmp,jmp]
 [jmp]
 [b,b,b,b,b,b]
-[auto,e]
+[auto,normal,e]
 
 --------------------------
 [jmp,jmp,jmp,jmp,jmp,jmp]

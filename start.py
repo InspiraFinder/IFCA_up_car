@@ -212,6 +212,9 @@ if __name__ == "__main__":
     tapes(adb_path, emulator_address, folder[0], folder[1])  # 选择你的次文件夹
     modeexecute = 0
     for item in range(0, 25):
+        if mode[1] == "firstline":
+            if item >= 5:
+                break
         print(f"Processing item {item + 1}")
         if order_list[item] == 'jmp':
             print(f"Item {item + 1} will be jumped")
@@ -408,7 +411,7 @@ if __name__ == "__main__":
                                 tap(adb_path, emulator_address, 1210, 447)  # ATTACK
                                 time.sleep(1)
                                 screenshot(adb_path, emulator_address)
-                            if mode[1] == "e":
+                            if mode[2] == "e":
                                 for j in p:
                                     if pixelsstatic(j, ((20, 77, 121),(20, 77, 121))) > 500:
                                         tap(adb_path, emulator_address, j[2], j[3])
@@ -483,7 +486,7 @@ if __name__ == "__main__":
                         if get_color(29, 607) == (85, 116, 206):
                             time.sleep(1)
                             break
-                    if mode[1] == "e":
+                    if mode[2] == "e":
                         for j in p:
                             if pixelsstatic(j, ((20, 77, 121),(20, 77, 121))) > 500:
                                 tap(adb_path, emulator_address, j[2], j[3])
