@@ -229,10 +229,25 @@ if __name__ == "__main__":
                 time.sleep(0.5)
                 tap(adb_path, emulator_address, 898, 689)
                 break
+            elif get_color(898, 689) == (154, 171, 195):
+                time.sleep(0.5)
+                tapes(adb_path, emulator_address, x, y)
+            elif get_color(898, 689) == (40, 40, 40):
+                time.sleep(0.5)
+                tap(adb_path, emulator_address, 852, 687)
+                time.sleep(3)
+                tap(adb_path, emulator_address, 1271, 842)
         time.sleep(1)
         press_home(adb_path, emulator_address)
         open_app(adb_path, emulator_address, package_name="com.zeptolab.cats.google", activity_name="com.zeptolab.cats.CATSActivity")
-        time.sleep(35)
+        time.sleep(1)
+        screenshot(adb_path, emulator_address)
+        if get_color(1775, 662) == (44, 47, 56):
+            # 仅适用无背景的雷电模拟器
+            open_app(adb_path, emulator_address, package_name="com.zeptolab.cats.google", activity_name="com.zeptolab.cats.CATSActivity")
+            time.sleep(1)
+            screenshot(adb_path, emulator_address)
+        time.sleep(30)
         screenshot(adb_path, emulator_address)
 
         status = 0
@@ -295,12 +310,41 @@ if __name__ == "__main__":
             if status == 1:
                 car_statue = [3, 3, 3]
                 print(f"car_statue: {car_statue}")
+                screenshot(adb_path, emulator_address)
+                colorj = []
+                colorj = get_color(950, 550)
                 tap(adb_path, emulator_address, 1763, 990)  # ENLIST
                 time.sleep(2)
+                screenshot(adb_path, emulator_address)
+                while get_color(950, 550) == colorj:
+                    colorj = get_color(950, 550)
+                    tap(adb_path, emulator_address, 1763, 990)
+                    time.sleep(2)
+                    screenshot(adb_path, emulator_address)
+
+                colorj = get_color(950, 550)
                 tap(adb_path, emulator_address, 1692, 873)  # START
                 time.sleep(2)
+                screenshot(adb_path, emulator_address)
+                while get_color(950, 550) == colorj:
+                    colorj = get_color(950, 550)
+                    tap(adb_path, emulator_address, 1692, 873)
+                    time.sleep(2)
+                    screenshot(adb_path, emulator_address)
+
+                colorj = get_color(950, 550)
                 tap(adb_path, emulator_address, 1069, 916)  # LET'S FIGHT
                 time.sleep(2)
+                screenshot(adb_path, emulator_address)
+                while get_color(950, 550) == colorj:
+                    colorj = get_color(950, 550)
+                    tap(adb_path, emulator_address, 1069, 916)
+                    time.sleep(2)
+                    screenshot(adb_path, emulator_address)
+
+            if get_color(1126, 128) != (145, 167, 192):
+                time.sleep(1)
+                screenshot(adb_path, emulator_address)
             statuschange = 1
             order = [char for char in order_list[item]]  # 获取车辆属性指令
             order.append('u') 
